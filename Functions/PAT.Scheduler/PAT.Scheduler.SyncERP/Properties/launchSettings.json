@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "PAT.Scheduler.SyncERP": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "PATEnvironment": "qa"
+      },
+      "hotReloadEnabled": true
+    }
+  }
+}

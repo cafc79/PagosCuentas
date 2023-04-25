@@ -1,0 +1,9 @@
+{
+    "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "DefaultEndpointsProtocol=https;AccountName=patqasa;AccountKey=1LaWF6bv3SQNNsZFjn5ulK/OD7MJVlTV82mA1qmpwANDxRGBQOxiFcW9Pya2SbMkfWbN5NtmJPgoQnnKZcq0MQ==",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+    "timer-frequency": "0 */10 * * * *"
+
+  }
+}
