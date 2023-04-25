@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "PAT.UserManagement.LockUser": {
+      "commandName": "Project",
+      "commandLineArgs": "host start --port 7077",
+      "environmentVariables": {
+        "PATEnvironment": "qa"
+      }
+    }
+  }
+}

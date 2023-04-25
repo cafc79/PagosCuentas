@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "PAT.UserManagement.UnlockUser": {
+      "commandName": "Project",
+      "commandLineArgs": "host start --port 7080",
+      "environmentVariables": {
+        "PATEnvironment": "qa"
+      }
+    }
+  }
+}

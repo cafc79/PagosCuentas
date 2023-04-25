@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "PAT.UserManagement.GetUsers": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "PATEnvironment": "qa"
+      }
+    }
+  }
+}

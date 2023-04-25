@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "PAT.UserManagement.SendPasswordResetLink": {
+      "commandName": "Project",
+      "commandLineArgs": "host start --port 7079",
+      "environmentVariables": {
+        "PATEnvironment": "qa"
+      }
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "PAT.UserManagement.RevokeTokenLogin": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "PATEnvironment": "qa"
+      }
+    }
+  }
+}

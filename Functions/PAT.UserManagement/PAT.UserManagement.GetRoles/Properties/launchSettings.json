@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "PAT.UserManagement.GetRoles": {
+      "commandName": "Project",
+      "commandLineArgs": "host start --port 7076",
+      "environmentVariables": {
+        "PATEnvironment": "qa"
+      }
+    }
+  }
+}

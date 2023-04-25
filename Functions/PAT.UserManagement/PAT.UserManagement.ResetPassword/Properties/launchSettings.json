@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "PAT.UserManagement.ResetPassword": {
+      "commandName": "Project",
+      "commandLineArgs": "host start --port 7078",
+      "environmentVariables": {
+        "PATEnvironment": "qa"
+      }
+    }
+  }
+}
