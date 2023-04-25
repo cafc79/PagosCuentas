@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "PAT.EgressManagement.PaymentHistory": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "PATEnvironment": "qa"
+      },
+      "remoteDebugEnabled": true
+    }
+  }
+}

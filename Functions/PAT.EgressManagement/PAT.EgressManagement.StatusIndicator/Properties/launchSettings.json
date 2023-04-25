@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "PAT.EgressManagement.StatusIndicator": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "PATEnvironment": "qa"
+      }
+    }
+  }
+}

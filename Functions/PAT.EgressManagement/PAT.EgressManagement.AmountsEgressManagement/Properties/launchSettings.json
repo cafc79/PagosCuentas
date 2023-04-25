@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "PAT.EgressManagement.AmountsEgressManagement": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "PATEnvironment": "qa"
+      }
+    }
+  }
+}

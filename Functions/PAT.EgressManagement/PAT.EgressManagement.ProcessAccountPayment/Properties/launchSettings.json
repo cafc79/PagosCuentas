@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "PAT.EgressManagement.ProcessAccountPayment": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "PATEnvironment": "qa"
+      }
+    }
+  }
+}
