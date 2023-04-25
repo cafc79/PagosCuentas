@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "PAT.UserManagement.Common": {
+      "commandName": "Project",
+      "commandLineArgs": "host start --port 7074",
+      "environmentVariables": {
+        "PATEnvironment": "qa"
+      }
+    }
+  }
+}

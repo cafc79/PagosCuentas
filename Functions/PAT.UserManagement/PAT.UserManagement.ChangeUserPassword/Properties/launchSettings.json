@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "PAT.UserManagement.ChangeUserPassword": {
+      "commandName": "Project",
+      "commandLineArgs": "host start --port 7071",
+      "environmentVariables": {
+        "PATEnvironment": "qa"
+      }
+    }
+  }
+}

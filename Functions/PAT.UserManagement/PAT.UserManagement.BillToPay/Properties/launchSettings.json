@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "PAT.UserManagement.BillToPay": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "PATEnvironment": "qa"
+      }
+    }
+  }
+}

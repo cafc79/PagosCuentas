@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "PAT.UserManagement.ConfirmUser": {
+      "commandName": "Project",
+      "commandLineArgs": "host start --port 7072",
+      "environmentVariables": {
+        "PATEnvironment": "qa"
+      }
+    }
+  }
+}

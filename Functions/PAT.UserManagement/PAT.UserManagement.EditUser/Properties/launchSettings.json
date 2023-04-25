@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "PAT.UserManagement.EditUser": {
+      "commandName": "Project",
+      "commandLineArgs": "host start --port 7070",
+      "environmentVariables": {
+        "PATEnvironment": "qa"
+      }
+    }
+  }
+}
