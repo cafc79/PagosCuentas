@@ -1,0 +1,309 @@
+trigger:
+  - none
+
+variables:
+  buildConfiguration: 'Release'
+  vmImageName: 'windows-latest'
+
+parameters:
+  - name: environment
+    displayName: Environment to deploy
+    type: string
+    default: prod
+    values:
+    - qa
+    - prod
+
+stages:
+  - stage: BuildAndTest
+    displayName: Build & test code
+    jobs:
+      - job: Main
+        displayName: Build & test
+        pool:
+          vmImage: $(vmImageName)
+        steps:
+          - task: UseDotNet@2
+            displayName: Install .NET 6 on agent
+            inputs:
+              packageType: 'sdk'
+              version: '6.0.x'
+          - task: DotNetCoreCLI@2
+            displayName: Build solution
+            inputs:
+              command: 'build'
+              projects: 'PAT.sln'
+              arguments: '--configuration $(buildConfiguration)'
+          - task: DotNetCoreCLI@2
+            displayName: Run unit tests
+            inputs:
+              command: 'test'
+              projects: 'PAT.*.Tests/*.csproj'
+              arguments: '--configuration $(buildConfiguration) -r $(build.artifactstagingdirectory)/TestResults'
+              publishTestResults: true
+          - task: PublishTestResults@2
+            displayName: Publish test results
+            inputs:
+              testResultsFormat: 'XUnit'
+              testResultsFiles: '$(build.artifactstagingdirectory)/TestResults/*.xml'
+              mergeTestResults: true
+              failTaskOnFailedTests: true
+              testRunTitle: 'All PAT tests'
+              buildConfiguration: 'Release'
+  - stage: Deploy
+    dependsOn: BuildAndTest
+    displayName: Deploy to Azure
+    jobs:
+      # One job for each PAT.Function namespace
+      - job: DeployArtifacts
+        displayName: Deploy PAT.UserManagement to Azure
+        pool:
+          vmImage: $(vmImageName)
+        steps:
+          - task: UseDotNet@2
+            displayName: Install .NET 6 on agent
+            inputs:
+              packageType: 'sdk'
+              version: '6.0.x'
+          # Build
+          - task: DotNetCoreCLI@2
+            displayName: Create release binaries
+            inputs:
+              command: 'publish'
+              publishWebProjects: false
+              projects: 'Functions/**/*.csproj'
+              arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)'
+              zipAfterPublish: True
+          # Publish Artifacts to Azure DevOps
+          - task: PublishBuildArtifacts@1
+            displayName: Save artifacts to Azure DevOps
+            inputs:
+              PathtoPublish: '$(build.artifactstagingdirectory)'
+              ArtifactName: 'drop'
+              publishLocation: 'Container'
+
+          # Deploy
+          - task: AzureFunctionApp@1
+            displayName: Publish PAT.UserManagement.Authentication
+            inputs:
+              azureSubscription: 'ABC App (40d8dc57-ae2d-4d92-b690-d137f3dc70a3)-1383'
+              appType: 'functionApp'
+              appName: 'PAT-${{ parameters.environment }}-UserManagement-Authentication'
+              package: '$(build.artifactstagingdirectory)/PAT.UserManagement.Authentication.zip'
+              deploymentMethod: 'zipDeploy'
+          - task: AzureFunctionApp@1
+            displayName: Publish PAT.UserManagement.ChangeUserPassword
+            inputs:
+              azureSubscription: 'ABC App (40d8dc57-ae2d-4d92-b690-d137f3dc70a3)-1383'
+              appType: 'functionApp'
+              appName: 'PAT-${{ parameters.environment }}-UserManagement-ChangeUserPassword'
+              package: '$(build.artifactstagingdirectory)/PAT.UserManagement.ChangeUserPassword.zip'
+              deploymentMethod: 'zipDeploy'
+          - task: AzureFunctionApp@1
+            displayName: Publish PAT.UserManagement.CreateRole
+            inputs:
+              azureSubscription: 'ABC App (40d8dc57-ae2d-4d92-b690-d137f3dc70a3)-1383'
+              appType: 'functionApp'
+              appName: 'PAT-${{ parameters.environment }}-UserManagement-CreateRole'
+              package: '$(build.artifactstagingdirectory)/PAT.UserManagement.CreateRole.zip'
+              deploymentMethod: 'zipDeploy'
+          - task: AzureFunctionApp@1
+            displayName: Publish PAT.UserManagement.CreateUser
+            inputs:
+              azureSubscription: 'ABC App (40d8dc57-ae2d-4d92-b690-d137f3dc70a3)-1383'
+              appType: 'functionApp'
+              appName: 'PAT-${{ parameters.environment }}-UserManagement-CreateUser'
+              package: '$(build.artifactstagingdirectory)/PAT.UserManagement.CreateUser.zip'
+              deploymentMethod: 'zipDeploy'
+          - task: AzureFunctionApp@1
+            displayName: Publish PAT.UserManagement.DeleteUser
+            inputs:
+              azureSubscription: 'ABC App (40d8dc57-ae2d-4d92-b690-d137f3dc70a3)-1383'
+              appType: 'functionApp'
+              appName: 'PAT-${{ parameters.environment }}-UserManagement-DeleteUser'
+              package: '$(build.artifactstagingdirectory)/PAT.UserManagement.DeleteUser.zip'
+              deploymentMethod: 'zipDeploy'
+          - task: AzureFunctionApp@1
+            displayName: Publish PAT.UserManagement.EditUser
+            inputs:
+              azureSubscription: 'ABC App (40d8dc57-ae2d-4d92-b690-d137f3dc70a3)-1383'
+              appType: 'functionApp'
+              appName: 'PAT-${{ parameters.environment }}-UserManagement-EditUser'
+              package: '$(build.artifactstagingdirectory)/PAT.UserManagement.EditUser.zip'
+              deploymentMethod: 'zipDeploy'
+          - task: AzureFunctionApp@1
+            displayName: Publish PAT.UserManagement.EditUserRole
+            inputs:
+              azureSubscription: 'ABC App (40d8dc57-ae2d-4d92-b690-d137f3dc70a3)-1383'
+              appType: 'functionApp'
+              appName: 'PAT-${{ parameters.environment }}-UserManagement-EditUserRole'
+              package: '$(build.artifactstagingdirectory)/PAT.UserManagement.EditUserRole.zip'
+              deploymentMethod: 'zipDeploy'
+          - task: AzureFunctionApp@1
+            displayName: Publish PAT.UserManagement.GetRoles
+            inputs:
+              azureSubscription: 'ABC App (40d8dc57-ae2d-4d92-b690-d137f3dc70a3)-1383'
+              appType: 'functionApp'
+              appName: 'PAT-${{ parameters.environment }}-UserManagement-GetRoles'
+              package: '$(build.artifactstagingdirectory)/PAT.UserManagement.GetRoles.zip'
+              deploymentMethod: 'zipDeploy'
+          - task: AzureFunctionApp@1
+            displayName: Publish PAT.UserManagement.GetUsers
+            inputs:
+              azureSubscription: 'ABC App (40d8dc57-ae2d-4d92-b690-d137f3dc70a3)-1383'
+              appType: 'functionApp'
+              appName: 'PAT-${{ parameters.environment }}-UserManagement-GetUsers'
+              package: '$(build.artifactstagingdirectory)/PAT.UserManagement.GetUsers.zip'
+              deploymentMethod: 'zipDeploy'
+          - task: AzureFunctionApp@1
+            displayName: Publish PAT.UserManagement.RevokeTokenConfirmation
+            inputs:
+              azureSubscription: 'ABC App (40d8dc57-ae2d-4d92-b690-d137f3dc70a3)-1383'
+              appType: 'functionApp'
+              appName: 'PAT-${{ parameters.environment }}-UserManagement-RevokeTokenConfirmation'
+              package: '$(build.artifactstagingdirectory)/PAT.UserManagement.RevokeTokenConfirmation.zip'
+              deploymentMethod: 'zipDeploy'
+          - task: AzureFunctionApp@1
+            displayName: Publish PAT.UserManagement.LockUser
+            inputs:
+              azureSubscription: 'ABC App (40d8dc57-ae2d-4d92-b690-d137f3dc70a3)-1383'
+              appType: 'functionApp'
+              appName: 'PAT-${{ parameters.environment }}-UserManagement-LockUser'
+              package: '$(build.artifactstagingdirectory)/PAT.UserManagement.LockUser.zip'
+              deploymentMethod: 'zipDeploy'
+          - task: AzureFunctionApp@1
+            displayName: Publish PAT.UserManagement.RevokeTokenLogin
+            inputs:
+              azureSubscription: 'ABC App (40d8dc57-ae2d-4d92-b690-d137f3dc70a3)-1383'
+              appType: 'functionApp'
+              appName: 'PAT-${{ parameters.environment }}-UserManagement-RevokeTokenLogin'
+              package: '$(build.artifactstagingdirectory)/PAT.UserManagement.RevokeTokenLogin.zip'
+              deploymentMethod: 'zipDeploy'
+          - task: AzureFunctionApp@1
+            displayName: Publish PAT.UserManagement.SendPasswordResetLink
+            inputs:
+              azureSubscription: 'ABC App (40d8dc57-ae2d-4d92-b690-d137f3dc70a3)-1383'
+              appType: 'functionApp'
+              appName: 'PAT-${{ parameters.environment }}-UserManagement-SendPasswordResetLink'
+              package: '$(build.artifactstagingdirectory)/PAT.UserManagement.SendPasswordResetLink.zip'
+              deploymentMethod: 'zipDeploy'
+          - task: AzureFunctionApp@1
+            displayName: Publish PAT.UserManagement.UnlockUser
+            inputs:
+              azureSubscription: 'ABC App (40d8dc57-ae2d-4d92-b690-d137f3dc70a3)-1383'
+              appType: 'functionApp'
+              appName: 'PAT-${{ parameters.environment }}-UserManagement-UnlockUser'
+              package: '$(build.artifactstagingdirectory)/PAT.UserManagement.UnlockUser.zip'
+              deploymentMethod: 'zipDeploy'
+          - task: AzureFunctionApp@1
+            displayName: Publish PAT.EgressManagement.BillToPay
+            inputs:
+              azureSubscription: 'ABC App (40d8dc57-ae2d-4d92-b690-d137f3dc70a3)-1383'
+              appType: 'functionApp'
+              appName: 'PAT-${{ parameters.environment }}-EgressManagement-BillToPay'
+              package: '$(build.artifactstagingdirectory)/PAT.EgressManagement.BillToPay.zip'
+              deploymentMethod: 'zipDeploy'
+          - task: AzureFunctionApp@1
+            displayName: Publish PAT.EgressManagement.CompanyAmmounts
+            inputs:
+              azureSubscription: 'ABC App (40d8dc57-ae2d-4d92-b690-d137f3dc70a3)-1383'
+              appType: 'functionApp'
+              appName: 'PAT-${{ parameters.environment }}-EgressManagement-CompanyAmmounts'
+              package: '$(build.artifactstagingdirectory)/PAT.EgressManagement.CompanyAmmounts.zip'
+              deploymentMethod: 'zipDeploy'
+          - task: AzureFunctionApp@1
+            displayName: Publish PAT.EgressManagement.PaymentHistory
+            inputs:
+              azureSubscription: 'ABC App (40d8dc57-ae2d-4d92-b690-d137f3dc70a3)-1383'
+              appType: 'functionApp'
+              appName: 'PAT-${{ parameters.environment }}-EgressManagement-PaymentHistory'
+              package: '$(build.artifactstagingdirectory)/PAT.EgressManagement.PaymentHistory.zip'
+              deploymentMethod: 'zipDeploy'
+          - task: AzureFunctionApp@1
+            displayName: Publish PAT.EgressManagement.PaymentAuthorization
+            inputs:
+              azureSubscription: 'ABC App (40d8dc57-ae2d-4d92-b690-d137f3dc70a3)-1383'
+              appType: 'functionApp'
+              appName: 'PAT-${{ parameters.environment }}-EgressManagement-PaymentAuthorization'
+              package: '$(build.artifactstagingdirectory)/PAT.EgressManagement.PaymentAuthorization.zip'
+              deploymentMethod: 'zipDeploy'
+          - task: AzureFunctionApp@1
+            displayName: Publish PAT.EgressManagement.ProcessAutorizationPayment
+            inputs:
+              azureSubscription: 'ABC App (40d8dc57-ae2d-4d92-b690-d137f3dc70a3)-1383'
+              appType: 'functionApp'
+              appName: 'PAT-${{ parameters.environment }}-EgressManagement-ProcessAutorizationPayment'
+              package: '$(build.artifactstagingdirectory)/PAT.EgressManagement.ProcessAutorizationPayment.zip'
+              deploymentMethod: 'zipDeploy'
+          - task: AzureFunctionApp@1
+            displayName: Publish PAT.EgressManagement.ProcessAccountPayment
+            inputs:
+              azureSubscription: 'ABC App (40d8dc57-ae2d-4d92-b690-d137f3dc70a3)-1383'
+              appType: 'functionApp'
+              appName: 'PAT-${{ parameters.environment }}-EgressManagement-ProcessAccountPayment'
+              package: '$(build.artifactstagingdirectory)/PAT.EgressManagement.ProcessAccountPayment.zip'
+              deploymentMethod: 'zipDeploy'
+          - task: AzureFunctionApp@1
+            displayName: Publish PAT.EgressManagement.ProcessPayment
+            inputs:
+              azureSubscription: 'ABC App (40d8dc57-ae2d-4d92-b690-d137f3dc70a3)-1383'
+              appType: 'functionApp'
+              appName: 'PAT-${{ parameters.environment }}-EgressManagement-ProcessPayment'
+              package: '$(build.artifactstagingdirectory)/PAT.EgressManagement.ProcessPayment.zip'
+              deploymentMethod: 'zipDeploy'
+          - task: AzureFunctionApp@1
+            displayName: Publish PAT.EgressManagement.StatusIndicator'
+            inputs:
+              azureSubscription: 'ABC App (40d8dc57-ae2d-4d92-b690-d137f3dc70a3)-1383'
+              appType: 'functionApp'
+              appName: 'PAT-${{ parameters.environment }}-EgressManagement-StatusIndicator'
+              package: '$(build.artifactstagingdirectory)/PAT.EgressManagement.StatusIndicator.zip'
+              deploymentMethod: 'zipDeploy'
+          - task: AzureFunctionApp@1
+            displayName: Publish PAT.EgressManagement.ChangeIndicatorStatus'
+            inputs:
+              azureSubscription: 'ABC App (40d8dc57-ae2d-4d92-b690-d137f3dc70a3)-1383'
+              appType: 'functionApp'
+              appName: 'PAT-${{ parameters.environment }}-EgressManagement-ChangeIndicatorStatus'
+              package: '$(build.artifactstagingdirectory)/PAT.EgressManagement.ChangeIndicatorStatus.zip'
+              deploymentMethod: 'zipDeploy'
+          - task: AzureFunctionApp@1
+            displayName: Publish PAT.EgressManagement.AmountsEgressManagement
+            inputs:
+              azureSubscription: 'ABC App (40d8dc57-ae2d-4d92-b690-d137f3dc70a3)-1383'
+              appType: 'functionApp'
+              appName: 'PAT-${{ parameters.environment }}-EgressManagement-AmountsEgressManagement'
+              package: '$(build.artifactstagingdirectory)/PAT.EgressManagement.AmountsEgressManagement.zip'
+              deploymentMethod: 'zipDeploy'
+          - task: AzureFunctionApp@1
+            displayName: Publish PAT.EgressManagement.ProcessRejectAutorizationPayment
+            inputs:
+              azureSubscription: 'ABC App (40d8dc57-ae2d-4d92-b690-d137f3dc70a3)-1383'
+              appType: 'functionApp'
+              appName: 'PAT-${{ parameters.environment }}-EgressManagement-ProcessRejectAutorizationPayment'
+              package: '$(build.artifactstagingdirectory)/PAT.EgressManagement.ProcessRejectAutorizationPayment.zip'
+              deploymentMethod: 'zipDeploy'
+          - task: AzureFunctionApp@1
+            displayName: Publish PAT.EgressManagement.SchedulerBillPayment
+            inputs:
+              azureSubscription: 'ABC App (40d8dc57-ae2d-4d92-b690-d137f3dc70a3)-1383'
+              appType: 'functionApp'
+              appName: 'PAT-${{ parameters.environment }}-EgressManagement-SchedulerBillPayment'
+              package: '$(build.artifactstagingdirectory)/PAT.EgressManagement.SchedulerBillPayment.zip'
+              deploymentMethod: 'zipDeploy'
+          - task: AzureFunctionApp@1
+            displayName: Publish PAT.PrivilegesManagement.Rol
+            inputs:
+              azureSubscription: 'ABC App (40d8dc57-ae2d-4d92-b690-d137f3dc70a3)-1383'
+              appType: 'functionApp'
+              appName: 'PAT-${{ parameters.environment }}-PrivilegesManagement-Rol'
+              package: '$(build.artifactstagingdirectory)/PAT.PrivilegesManagement.Rol.zip'
+              deploymentMethod: 'zipDeploy'
+          - task: AzureFunctionApp@1
+            displayName: Publish PAT.Scheduler.SyncERP
+            inputs:
+              azureSubscription: 'ABC App (40d8dc57-ae2d-4d92-b690-d137f3dc70a3)-1383'
+              appType: 'functionApp'
+              appName: 'PAT-${{ parameters.environment }}-Scheduler-SyncERP'
+              package: '$(build.artifactstagingdirectory)/PAT.Scheduler.SyncERP.zip'
+              deploymentMethod: 'zipDeploy'

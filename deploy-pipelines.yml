@@ -1,0 +1,20 @@
+variables:
+  group: "Deploy"
+  buildConfiguration: 'Release'
+  vmImageName: 'windows-latest'
+
+variables:
+
+stages:
+  - stage: Deploy_QA
+    displayName: Deploy QA Infrastructure
+    jobs:
+      - template: deploy_template.yaml
+        parameters:
+          environment: 'dev'
+  - stage: Deploy_Prod
+    displayName: Deploy Prod Infrastructure
+    jobs:
+      - template: deploy_template.yaml
+        parameters:
+          environment: 'qa'
