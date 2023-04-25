@@ -1,0 +1,8 @@
+config:
+  azure-native:clientId: 190c524f-a5de-423e-b6fc-2ce7e01c068b
+  azure-native:clientSecret:
+    secure: AAABACR5dz6wlLRYB6dRqKNRcL8YTgRBQPtmLhGeO7fQIDqxzzTRqUCfxzfchpRN061a/I+j7TPXQozNonlYZ1x/cxuv
+  azure-native:location: CentralUS
+  azure-native:subscriptionId: 40d8dc57-ae2d-4d92-b690-d137f3dc70a3
+  azure-native:tenandId: 25e6bb0c-df31-4023-ad58-3a19800cd2f9
+  pulumi:template: azure-csharp

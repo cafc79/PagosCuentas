@@ -1,0 +1,3 @@
+name: PAT.Deployment
+runtime: dotnet
+description: PAT Infrastructure as code
