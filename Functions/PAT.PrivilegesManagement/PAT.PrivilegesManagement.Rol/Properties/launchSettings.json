@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "PAT.PrivilegesManagement.Rol": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "PATEnvironment": "qa"
+      }
+    }
+  }
+}
